@@ -1,12 +1,12 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+# This source code is heavily based on the MAE repository from
+# Meta AI. By extension, it is covered under the CC 4.0 
+# noncommercial license as detailed in the LICENSE file in this directory.
 # --------------------------------------------------------
 # References:
-# DeiT: https://github.com/facebookresearch/deit
-# BEiT: https://github.com/microsoft/unilm/tree/master/beit
+# MAE: https://github.com/facebookresearch/mae
 # --------------------------------------------------------
 
 import builtins
@@ -15,7 +15,6 @@ import os
 import time
 from collections import defaultdict, deque
 from pathlib import Path
-import json
 import torch
 import torch.distributed as dist
 from datetime import timedelta

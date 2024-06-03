@@ -1,18 +1,18 @@
-import torch
-from torch.utils.data import DataLoader
-from ecoperceiver import EcoPerceiverModel, EcoPerceiverConfig, EcoPerceiverDataset, ep_collate
 import argparse
-import yaml
+import os
 import numpy as np
 import misc
 import random
 import shutil
-import os
 import math
+import yaml
 from pathlib import Path
+import torch
+from torch.utils.data import DataLoader
 import timm.optim.optim_factory as optim_factory
 from torch.utils.tensorboard import SummaryWriter
 torch.multiprocessing.set_sharing_strategy('file_system')
+from ecoperceiver import EcoPerceiverModel, EcoPerceiverConfig, EcoPerceiverDataset, ep_collate
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Perceiver Distributed Trainer', add_help=False)

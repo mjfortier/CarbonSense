@@ -21,7 +21,7 @@ if not os.path.exists('runs'):
     sys.exit()
 
 if not os.path.exists('data'):
-    print('neds a data folder (or symlink) in this directory')
+    print('needs a data folder (or symlink) in this directory')
     sys.exit()
 
 with open(args.config, 'r') as file:
