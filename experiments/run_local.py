@@ -19,7 +19,6 @@ def get_args_parser():
     parser.add_argument('--run_dir', default='./runs/default')
     parser.add_argument('--config', default='config.yml')
     parser.add_argument('--data_dir', default='./data')
-    parser.add_argument('--tensorboard_dir', default='./tensorboard/default')
     parser.add_argument('--auto_resume', action='store_true')
     parser.add_argument('--seed', type=int, default=0)
     return parser
