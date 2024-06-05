@@ -50,7 +50,6 @@ def main(args):
     with open(args.config, 'r') as file:
         config = yaml.safe_load(file)
 
-
     ############
     # Dataloader
     ############

@@ -30,9 +30,11 @@ def get_args_parser():
 
 
 def main(args):
+
     ############
     # Misc setup
     ############
+
     SEED = args.seed
     torch.manual_seed(SEED)
     torch.cuda.manual_seed(SEED)
@@ -68,7 +70,6 @@ def main(args):
         os.system(f'rm -f {slurm_tar_file}')
     data_dir = slurm_path
     dist.barrier()
-
 
     ############
     # Dataloader
@@ -127,7 +128,6 @@ def main(args):
         log_writer = SummaryWriter(log_dir=tbdir)
     else:
         log_writer = None
-    
 
     #######
     # Model
@@ -139,10 +139,8 @@ def main(args):
     model = EcoPerceiverModel(model_config)
     model.to(device)
     
-    #model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
     model_without_ddp = model.module
-
 
     ###########
     # Optimizer
