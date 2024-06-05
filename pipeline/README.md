@@ -11,11 +11,25 @@ There are two ways in which this pipeline can be used:
 
 ## Rerunning the Pipeline
 
-This is a straightforward process that can be done in under an hour on most modern desktop computers.
+This is a straightforward process that can be done in under an hour on most modern desktop computers (after the raw data is downloaded).
 
-### 0. Acquiring the data
+### 0. Acquiring the Raw Data
 
-You should now have a symbolic link called `data` in this directory, and it should have a subdirectory structure as follows:
+First, a data directory needs to be setup. Because CarbonSense is processed in several stages, there needs to be enough disk space for intermediary storage. Find a valid directory location, and then create a symbolic link to it from this `pipeline` directory with
+
+```
+ln -s /path/to/data/directory data
+```
+
+Raw data can be downloaded from [Zenodo]
+
+```
+cd data
+wget https://zenodo.org/records/11403428/files/carbonsense_raw.tar.gz?download=1
+tar xzvf carbonsense_raw.tar.gz
+```
+
+Downloading from Zenodo can take several hours, and extracting the gzip tar file can also take a while. The compression was necessary to satisfy Zenodo's maximum filesize. After this is complete, your `data` directory should have a structure like this:
 
 ```
 data
@@ -29,7 +43,7 @@ data
     └── modis_a4
 ```
 
-It is now safe to remove the `tar` file with `rm data/carbonsense_raw.tar.gz`. This is not necessary to proceed, but will free up 20GB of hard drive space.
+It is now safe to remove the `tar` file with `rm carbonsense_raw.tar.gz`. This is not necessary to proceed, but will free up 20GB of hard drive space.
 
 ### 1. Preprocessing
 
@@ -51,7 +65,7 @@ data
 
 At this point, the EC data is ready to be fused.
 
-### 2. Data Processing
+### 2. EC Data Fusion
 
 We can now run `2_process_data.ipynb` from beginning to end. This script will fuse all EC data so that there is only a single directory per site. Note that if a site has multiple disparate temporal coverage periods, it will have separate subdirectories such as:
 ```
@@ -100,12 +114,31 @@ data/
     └── ...
 ```
 
-The dataset is now ready for use.
+The dataset is now ready for use. If you do not intend to run this pipeline again, it is safe to delete the `intermediate`, `meta`, and `raw` directories.
 
 ## Adding New Data
-- Needs its own directory in /data/raw
-- Needs a site_data.csv
-- Needs its own preprocessig script which puts it in the same format at the other preprocessing scripts
 
-- GEE must be rerun
-- This should only be done if the new dataset is being publicly released
+### 0. Data Acquisition
+
+Follow the same procedure as in [Acquiring the Raw Data](./README.md#0-acquiring-the-raw-data). Once complete, new data sources can be added to `data/raw`. These datasets should be partitioned by EC site, and the directory should contain a `site_data.csv` file which specifies the longitude, latitude, and IGBP classification of each site. This will be used when creating the metadata file for pulling MODIS information. It's suggested that you use the existing raw data sources as a template.
+
+### 1. Preprocessing New Data
+
+Follow the same procedure as in [Preprocessing](./README.md#1-preprocessing). Additionally, a new preprocessing notebook should be created for each new data source. The existing preprocessing notebooks should provide a template for how the final directory should be structured.
+
+### 2. New Data Fusion
+
+Follow the same procedure as in [EC Data Fusion](./README.md#2-ec-data-fusion). In the third cell, be sure to add your new data sources to the `PRIORITIES` dictionary according to publication date. This tells the pipeline which data source to defer to in the event of conflicting measurements at a single station.
+
+### 3. GeoJSON creation
+
+We now run the `3_processed_meta_to_bounding_box.ipynb` notebook. This will create a `.geojson` file containing the bounding box coordinates around each EC station. This is used for pulling MODIS data in the next section.
+
+### 4. MODIS retrieval
+
+This is one of the most cumbersome parts of adding new data. The `.geojson` file now located in the `data/meta` folder needs to be uploaded to your Google Drive alongside the `4_download_modis.ipynb`. This notebook will only work when run on Google Colab. It uses integrations with Google Earth Engine to pull the data down.
+Follow the instructions in the notebook, and when it concludes you should have the `modis_a2` and `modis_a4` directories in your Google Drive. Download these directories and place them in /data/raw (replacing the existing directories if present).
+
+### 5. Completing the pipeline
+
+Follow the same procedure as in [Incorporating MODIS Data, Normalizing Values](./README.md#5-incorporating-modis-data-normalizing-values). The script should conclude with the processed data in `data/processed/carbonsense`.
