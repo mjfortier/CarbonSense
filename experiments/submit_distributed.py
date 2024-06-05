@@ -13,6 +13,7 @@ parser.add_argument("--dry_run", action='store_true', default=False)
 parser.add_argument("--prefix", default='')
 parser.add_argument("--main", action='store_true', default=False)
 parser.add_argument("--seed", type=int, default=0)
+parser.add_argument("--env", deault='~/env/scratch/bin/activate')
 
 args = parser.parse_args()
 
@@ -49,7 +50,7 @@ job_script=f"""#!/bin/bash
 #SBATCH --job-name={job_name}
 
 module load python
-source /home/mfortier/env/scratch/bin/activate
+source {args.env}
 
 export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 export MASTER_ADDR=$SLURMD_NODENAME
