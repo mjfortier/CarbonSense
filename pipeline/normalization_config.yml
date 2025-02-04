@@ -1,158 +1,129 @@
-CO2_F_MDS:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: 0.0
-G_F_MDS:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: -1000.0
-H_F_MDS:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: -1000.0
-LE_F_MDS:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: -1000.0
-LW_IN_F:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: 0
-LW_OUT:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: -100.0
-NETRAD:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: -1000.0
-PA_F:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 150.0
-  normalization_min: 20.0
-PPFD_DIF:
-  keep: false # low fill value
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: -9999
-  normalization_min: -9999
-PPFD_IN:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 3000.0
-  normalization_min: -200.0
-PPFD_OUT:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 3000.0
-  normalization_min: -200.0
-P_F:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 300.0
-  normalization_min: 0.0
-RH:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 100.0
-  normalization_min: 0.0
-SW_DIF:
-  keep: false # low fill rate
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: -9999
-  normalization_min: -9999
-SW_IN_F:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: 0
-SW_OUT:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 2000.0
-  normalization_min: -100.0
-TA_F:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 80.0
-  normalization_min: -80.0
-USTAR:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 10.0
-  normalization_min: 0.0
-VPD_F:
-  keep: true
-  max_qc_flag: 1
-  cyclic: false
-  normalization_max: 110.0
-  normalization_min: 0.0
-WD:
-  keep: true
-  max_qc_flag: 1
+DOY:
   cyclic: true
-  normalization_max: 360.0
-  normalization_min: 0.0
-WS_F:
-  keep: true
-  max_qc_flag: 1
+  norm_max: 366.0
+  norm_min: 0.0
+TOD:
+  cyclic: true
+  norm_max: 24.0
+  norm_min: 0.0
+TA:
   cyclic: false
-  normalization_max: 100.0
-  normalization_min: 0.0
+  norm_max: 80.0
+  norm_min: -80.0
+P:
+  cyclic: false
+  norm_max: 50.0
+  norm_min: 0.0
+RH:
+  cyclic: false
+  norm_max: 100.0
+  norm_min: 0.0
+VPD:
+  cyclic: false
+  norm_max: 110.0
+  norm_min: 0.0
+PA:
+  cyclic: false
+  norm_max: 110.0
+  norm_min: 0.0
+CO2:
+  cyclic: false
+  norm_max: 750.0
+  norm_min: 0.0
+SW_IN:
+  cyclic: false
+  norm_max: 1500.0
+  norm_min: -1500.0
+SW_OUT:
+  cyclic: false
+  norm_max: 500.0
+  norm_min: -500.0
+LW_IN:
+  cyclic: false
+  norm_max: 1000.0
+  norm_min: -1000.0
+LW_OUT:
+  cyclic: false
+  norm_max: 1000.0
+  norm_min: -1000.0
+NETRAD:
+  cyclic: false
+  norm_max: 1000.0
+  norm_min: -1000.0
+PPFD_IN:
+  cyclic: false
+  norm_max: 2500.0
+  norm_min: -2500.0
+PPFD_OUT:
+  cyclic: false
+  norm_max: 1000.0
+  norm_min: -1000.0
+TS_1:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+TS_2:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+TS_3:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+TS_4:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+TS_5:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+G:
+  cyclic: false
+  norm_max: 700.0
+  norm_min: -700.0
+H:
+  cyclic: false
+  norm_max: 700.0
+  norm_min: -700.0
+LE:
+  norm_max: 700.0
+  norm_min: -700.0
+WS:
+  cyclic: false
+  norm_max: 100.0
+  norm_min: -100.0
+WD:
+  cyclic: true
+  norm_max: 360.0
+  norm_min: 0.0
+USTAR:
+  cyclic: false
+  norm_max: 4.0
+  norm_min: -4.0
 
-# Targets
-NEE_VUT_REF:
-  keep: true
-  target: true
-  max_qc_flag: 1
-  normalization_max: 0
-  normalization_min: 0
-GPP_DT_VUT_REF:
-  keep: true
-  target: true
-  max_qc_flag: 1
-  normalization_max: 0
-  normalization_min: 0
-GPP_NT_VUT_REF:
-  keep: true
-  target: true
-  max_qc_flag: 1
-  normalization_max: 0
-  normalization_min: 0
-RECO_DT_VUT_REF:
-  keep: true
-  target: true
-  max_qc_flag: 1
-  normalization_max: 0
-  normalization_min: 0
-RECO_NT_VUT_REF:
-  keep: true
-  target: true
-  max_qc_flag: 1
-  normalization_max: 0
-  normalization_min: 0
+
+NEE:
+  cyclic: false
+  norm_max: 50.0
+  norm_min: -50.0
+GPP_DT:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+GPP_NT:
+  cyclic: false
+  norm_max: 40.0
+  norm_min: -40.0
+RECO_DT:
+  cyclic: false
+  norm_max: 30.0
+  norm_min: -30.0
+RECO_NT:
+  cyclic: false
+  norm_max: 30.0
+  norm_min: -30.0
+FCH4:
+  cyclic: false
+  norm_max: 800.0
+  norm_min: -800.0

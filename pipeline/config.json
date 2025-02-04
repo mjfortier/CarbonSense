@@ -1,0 +1,62 @@
+{
+  "harmonize_columns": {
+    "timestamp_column": "TIMESTAMP_START",
+    "predictor_columns": [
+      "TA",
+      "P",
+      "RH",
+      "VPD",
+      "PA",
+      "CO2",
+      "SW_IN",
+      "SW_OUT",
+      "LW_IN",
+      "LW_OUT",
+      "NETRAD",
+      "PPFD_IN",
+      "PPFD_OUT",
+      "TS_1",
+      "TS_2",
+      "TS_3",
+      "TS_4",
+      "TS_5",
+      "G",
+      "H",
+      "LE",
+      "WTD",
+      "WS",
+      "WD",
+      "USTAR"
+    ],
+    "flux_columns": [
+      "NEE",
+      "GPP_DT",
+      "GPP_NT",
+      "RECO_DT",
+      "RECO_NT",
+      "FCH4"
+    ],
+    "default_gapfill_qc_flags": {
+      "_VUT_REF": 0,
+      "_VUT_REF_F": 2,
+      "_F_VUT_REF": 2,
+      "_F": 2,
+      "_F_MDS": 3
+    }
+  },
+  "combine_sources": {
+    "source_priority": [
+      "ameriflux",
+      "fluxnet",
+      "icos-2023",
+      "icos-ww",
+      "fluxnet-ch4"
+    ]
+  },
+  "MODIS": {
+    "image_size_km": 4
+  },
+  "phenocam": {
+    "max_distance_from_tower_m": 100 
+  }
+}
