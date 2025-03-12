@@ -1,13 +1,14 @@
 {
   "harmonize_columns": {
     "timestamp_column": "TIMESTAMP_START",
-    "predictor_columns": [
+    "meteorological_columns": [
       "TA",
       "P",
       "RH",
       "VPD",
       "PA",
       "CO2",
+      "SWC",
       "SW_IN",
       "SW_OUT",
       "LW_IN",
@@ -15,19 +16,20 @@
       "NETRAD",
       "PPFD_IN",
       "PPFD_OUT",
-      "TS_1",
-      "TS_2",
-      "TS_3",
-      "TS_4",
-      "TS_5",
       "G",
       "H",
       "LE",
       "WTD",
+      "SWC",
       "WS",
       "WD",
       "USTAR"
     ],
+    "soil_columns": [
+      "TS",
+      "SWC"
+    ],
+    "soil_column_max": 5,
     "flux_columns": [
       "NEE",
       "GPP_DT",
