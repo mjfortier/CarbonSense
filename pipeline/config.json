@@ -1,49 +1,52 @@
 {
   "harmonize_columns": {
     "timestamp_column": "TIMESTAMP_START",
-    "meteorological_columns": [
-      "TA",
-      "P",
-      "RH",
-      "VPD",
-      "PA",
-      "CO2",
-      "SWC",
-      "SW_IN",
-      "SW_OUT",
-      "LW_IN",
-      "LW_OUT",
-      "NETRAD",
-      "PPFD_IN",
-      "PPFD_OUT",
-      "G",
-      "H",
-      "LE",
-      "WTD",
-      "SWC",
-      "WS",
-      "WD",
-      "USTAR"
-    ],
-    "soil_columns": [
-      "TS",
-      "SWC"
-    ],
-    "soil_column_max": 5,
-    "flux_columns": [
-      "NEE",
-      "GPP_DT",
-      "GPP_NT",
-      "RECO_DT",
-      "RECO_NT",
-      "FCH4"
-    ],
+    "meteorological_columns": {
+      "TA": ["TA", "TA_F", "TA_F_MDS"],
+      "P": ["P", "P_F"],
+      "RH": ["RH", "RH_F"],
+      "VPD": ["VPD", "VPD_F", "VPD_F_MDS"],
+      "PA": ["PA", "PA_F"],
+      "CO2": ["CO2_F_MDS"],
+      "SW_IN": ["SW_IN", "SW_IN_F", "SW_IN_F_MDS"],
+      "SW_IN_POT": ["SW_IN_POT"],
+      "SW_OUT": ["SW_OUT", "SW_OUT_F"],
+      "LW_IN": ["LW_IN", "LW_IN_F", "LW_IN_F_MDS"],
+      "LW_OUT": ["LW_OUT", "LW_OUT_F"],
+      "NETRAD": ["NETRAD", "NETRAD_F"],
+      "PPFD_IN": ["PPFD_IN", "PPFD_IN_F"],
+      "PPFD_OUT": ["PPFD_OUT", "PPFD_OUT_F"],
+      "WS": ["WS", "WS_F"],
+      "WD": ["WD"],
+      "USTAR": ["USTAR"]
+    },
+    "soil_columns": {
+      "SWC_1": ["SWC", "SWC_1", "SWC_F", "SWC_F_MDS_1"],
+      "SWC_2": ["SWC_2", "SWC_F_MDS_2"],
+      "SWC_3": ["SWC_3", "SWC_F_MDS_3"],
+      "SWC_4": ["SWC_4", "SWC_F_MDS_4"],
+      "SWC_5": ["SWC_5", "SWC_F_MDS_5"],
+      "TS_1": ["TS", "TS_1", "TS_F", "TS_F_MDS_1"],
+      "TS_2": ["TS_2", "TS_F_MDS_2"],
+      "TS_3": ["TS_3", "TS_F_MDS_3"],
+      "TS_4": ["TS_4", "TS_F_MDS_4"],
+      "TS_5": ["TS_5", "TS_F_MDS_5"],
+      "WTD": ["WTD", "WTD_F"]
+    },
+    "flux_columns": {
+      "G": ["G", "G_1", "G_F", "G_F_MDS"],
+      "H": ["H", "H_F", "H_F_MDS"],
+      "LE": ["LE", "LE_F", "LE_F_MDS"],
+      "NEE": ["NEE", "NEE_F", "NEE_VUT_REF"],
+      "GPP_DT": ["GPP_DT", "GPP_DT_VUT_REF"],
+      "GPP_NT": ["GPP_NT", "GPP_NT_VUT_REF"],
+      "RECO_DT": ["RECO_DT", "RECO_DT_VUT_REF"],
+      "RECO_NT": ["RECO_NT", "RECO_NT_VUT_REF"],
+      "FCH4": ["FCH4", "FCH4_F"]
+    },
     "default_gapfill_qc_flags": {
-      "_VUT_REF": 0,
-      "_VUT_REF_F": 2,
-      "_F_VUT_REF": 2,
       "_F": 2,
-      "_F_MDS": 3
+      "_MDS": 3
     }
   },
   "combine_sources": {
