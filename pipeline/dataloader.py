@@ -109,15 +109,18 @@ class CarbonSenseDataset(Dataset):
         ec_data = torch.tensor(df.drop(columns=['id', 'site', 'timestamp']).fillna(value=np.nan).astype(np.float32).values)
         ec_cols = tuple(df.drop(columns=['id', 'site', 'timestamp']).columns)
 
-        modis_from_bytes = lambda x: torch.tensor(np.frombuffer(x, dtype=np.float32).reshape(9,8,8))
-        modis_data = [(ts_map[row_id], modis_from_bytes(bytestring)) for row_id, bytestring in modis_result]
+        modis_data = []
+        if self.config.use_modis:
+            modis_from_bytes = lambda x: torch.tensor(np.frombuffer(x, dtype=np.float32).reshape(9,8,8))
+            modis_data = [(ts_map[row_id], modis_from_bytes(bytestring)) for row_id, bytestring in modis_result]
 
         phenocam_ir = []
         phenocam_rgb = []
-        for row, filetext in phenocam_result:
-            files = filetext.split(',')
-            phenocam_ir.extend([(ts_map[row], self._load_image(f)) for f in files if '_IR_' in f])
-            phenocam_rgb.extend([(ts_map[row], self._load_image(f)) for f in files if '_IR_' not in f])
+        if self.config.use_phenocam:
+            for row, filetext in phenocam_result:
+                files = filetext.split(',')
+                phenocam_ir.extend([(ts_map[row], self._load_image(f)) for f in files if '_IR_' in f])
+                phenocam_rgb.extend([(ts_map[row], self._load_image(f)) for f in files if '_IR_' not in f])
 
         return site, ec_cols, ec_timestamps, ec_data, tuple(modis_data), tuple(phenocam_ir), tuple(phenocam_rgb)
     

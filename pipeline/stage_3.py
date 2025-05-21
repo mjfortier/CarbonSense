@@ -49,12 +49,13 @@ def _load_meta(site_path):
 
 
 def create_modis_script_config(data_dir):
-    data_path = Path(data_dir) / 'processed'
+    data_path = Path(data_dir)
+    processed_path = data_path / 'processed'
     with open(data_dir / 'config.json', 'r') as f:
         config = json.load(f)
     
-    sites = os.listdir(data_path)
-    data = [_load_meta(data_path / s) for s in sites]
+    sites = os.listdir(processed_path)
+    data = [_load_meta(processed_path / s) for s in sites]
     meta_df = pd.DataFrame(data)
     offset_m = config["MODIS"]["image_size_km"] * 1000 / 2
     meta_df['geometry'] = meta_df.apply(lambda row: get_polygon_wkt(row['LOCATION_LAT'], row['LOCATION_LON'], offset_m), axis=1)
@@ -108,7 +109,7 @@ def _download_images(image_paths, downloaded_images, phenocam_path):
         except requests.exceptions.RequestException as e:
             print(f"\tAn error occurred: {e}")
     
-        delay = np.random.uniform(low=0.05, high=0.1) # average 75ms wait time
+        delay = np.random.uniform(low=0.01, high=0.05)
         sleep(delay)
     
 
@@ -171,11 +172,15 @@ def download_phenocam_imagery(data_dir):
 
 
 def run_stage_3_a(data_dir, download_phenocam = False):
-    create_modis_script_config(data_dir)
+    data_path = Path(data_dir)
+    print('Creating MODIS site metadata...')
+    create_modis_script_config(data_path)
     if download_phenocam:
-        download_phenocam_imagery(data_dir)
+        print('Downloading phenocam imagery...')
+        download_phenocam_imagery(data_path)
 
 def run_stage_3_b(data_dir):
+    print('Organizing MODIS data...')
     data_path = Path(data_dir)
     modis_a2_path = data_path / 'raw' / 'modis_a2'
     modis_a4_path = data_path / 'raw' / 'modis_a4'

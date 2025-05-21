@@ -65,8 +65,8 @@ DEFAULT_NORM = {
 
 
 @dataclass
-class CarbonSenseProcessorConfig:
-    '''Configuration for CarbonSenseV2 dataloader and preprocessor
+class CarbonSenseStage4Config:
+    '''Configuration for CarbonSenseV2 final output
 
     targets - variable selection for targets. Must be a subset of EC_TARGETS
     targets_max_qc - maximum QC flag (inclusive) to allow for target values. A lower value will result
@@ -96,7 +96,7 @@ def _resize_img(img_dir, target_dir, target_size, image_file):
 def resize_phenocam(
         raw_data_dir: Union[str, os.PathLike],
         output_dir: Union[str, os.PathLike],
-        config: CarbonSenseProcessorConfig,
+        config: CarbonSenseStage4Config,
         num_workers: int = 8):
     """Resizes all phenocam imagery and places it in a new directory
 
@@ -106,7 +106,7 @@ def resize_phenocam(
         config: Config used for processing.
         num_workers: Number of processes to spawn.
     """
-    img_dir = Path(raw_data_dir) / 'phenocam'
+    img_dir = Path(raw_data_dir) / 'raw' / 'phenocam'
     target_dir = Path(output_dir) / 'phenocam'
     os.makedirs(target_dir, exist_ok=True)
 
@@ -117,7 +117,7 @@ def resize_phenocam(
         list(tqdm(pool.imap_unordered(resize_img_partial, images), total=len(images)))
 
 
-def _create_carbonsense_tables(conn: sqlite3.Connection, config: CarbonSenseProcessorConfig):
+def _create_carbonsense_tables(conn: sqlite3.Connection, config: CarbonSenseStage4Config):
     columns =  config.predictors + config.targets
     column_spec = ',\n        '.join([f'{c} REAL' for c in columns])
     create_tables_statement = f"""
@@ -152,7 +152,7 @@ def _create_carbonsense_tables(conn: sqlite3.Connection, config: CarbonSenseProc
     conn.executescript(create_tables_statement)
 
 
-def _process_dataframe(df_raw: pd.DataFrame, config: CarbonSenseProcessorConfig):
+def _process_dataframe(df_raw: pd.DataFrame, config: CarbonSenseStage4Config):
     df = df_raw.copy()
     for pred in config.predictors:
         if pred == 'DOY' or pred == 'TOD':
@@ -194,19 +194,19 @@ def _process_dataframe(df_raw: pd.DataFrame, config: CarbonSenseProcessorConfig)
 
 
 def process_data_sql(
-        raw_data_dir: Union[str, os.PathLike],
+        data_dir: Union[str, os.PathLike],
         output_dir: Union[str, os.PathLike],
-        config: CarbonSenseProcessorConfig):
+        config: CarbonSenseStage4Config):
     
-    raw_data_path = Path(raw_data_dir)
+    processed_data_path = Path(data_dir) / 'processed'
     output_path = Path(output_dir)
     
-    sites = os.listdir(raw_data_path / 'site_data')
+    sites = os.listdir(processed_data_path)
     print('Preparing site data for SQL...')
     with sqlite3.connect(output_path / 'carbonsense_v2.sql') as conn:
         _create_carbonsense_tables(conn, config)
         for site in tqdm(sites):
-            df = pd.read_csv(raw_data_path / 'site_data' / site / 'data.csv')
+            df = pd.read_csv(processed_data_path / site / 'data.csv')
             df_processed = _process_dataframe(df, config)
             df_processed['site'] = site
             df_processed.to_sql('ec_data', conn, if_exists='append', index=False)
@@ -214,7 +214,7 @@ def process_data_sql(
             timestamp_row_pairs = conn.execute(f'SELECT id, timestamp FROM ec_data WHERE site = "{site}";').fetchall()
             timestamp_map = {ts: ind for ind, ts in timestamp_row_pairs}
 
-            modis_file = raw_data_path / 'site_data' / site / 'modis.pkl'
+            modis_file = processed_data_path / site / 'modis.pkl'
             if os.path.exists(modis_file):
                 with open(modis_file, 'rb') as f:
                     modis_dict = pkl.load(f)
@@ -228,7 +228,7 @@ def process_data_sql(
                 df_modis.to_sql('modis_data', conn, if_exists='append', index=False)
                 del modis_file, modis_dict, modis_data, df_modis
 
-            phenocam_file = raw_data_path / 'site_data' / site / 'phenocam.pkl'
+            phenocam_file = processed_data_path / site / 'phenocam.pkl'
             if os.path.exists(phenocam_file):
                 with open(phenocam_file, 'rb') as f:
                     phenocam_dict = pkl.load(f)
@@ -254,23 +254,25 @@ def _check_phenocam_files(filelist: list, output_path: os.PathLike):
     return checked_filelist
 
 
-def process_carbonsense(
-        preprocessed_data_dir: Union[str, os.PathLike],
-        output_dir: Union[str, os.PathLike],
-        config: CarbonSenseProcessorConfig = CarbonSenseProcessorConfig(),
+def run_stage_4(
+        data_dir: Union[str, os.PathLike],
+        output_name: str = 'carbonsense_v2',
+        config: CarbonSenseStage4Config = CarbonSenseStage4Config(),
         num_workers: int = 8):
     """Converts the raw CarbonSenseV2 dataset into a fully processed version
     ready for use in a dataloader.
 
     Args:
-        preprocessed_data_dir: The location of CarbonSenseV2 preprocessed dataset.
+        data_dir: The location of CarbonSenseV2 preprocessed dataset.
         output_dir: Location of final CarbonSenseV2 dataset.
-        config (optional): CarbonSenseProcessorConfig as described above.
+        config (optional): CarbonSenseStage4Config as described above.
         num_workers (optional): Number of processes to use in post processing.
     """
+    data_path = Path(data_dir)
+    output_path = data_path / output_name
     
-    os.makedirs(output_dir, exist_ok=True)
-    resize_phenocam(preprocessed_data_dir, output_dir, config, num_workers)
-    process_data_sql(preprocessed_data_dir, output_dir, config)
+    os.makedirs(output_path, exist_ok=True)
+    resize_phenocam(data_path, output_path, config, num_workers)
+    process_data_sql(data_path, output_path, config)
 
     return
