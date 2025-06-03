@@ -44,8 +44,9 @@ class CarbonSenseBatch:
     timestamps: Tuple
     ec_values: torch.Tensor # all eddy covariance data: (batch, context_window, values)
     modis: Tuple # all modis data: (batch, (timestamp, ndarray))
-    phenocam_ir: Tuple # all phenocam data: (batch, (timestamp, ndarray))
-    phenocam_rgb: Tuple # all phenocam data: (batch, (timestamp, ndarray))
+    phenocam_ir: Tuple # all phenocam infrared data: (batch, (timestamp, ndarray))
+    phenocam_rgb: Tuple # all phenocam rgb data: (batch, (timestamp, ndarray))
+    aux_data: Tuple # all site-level data such as elevation, igbp type: (batch, dict)
 
     def to(self, device: Any):
         '''
@@ -100,10 +101,12 @@ class CarbonSenseDataset(Dataset):
             ec_data = conn.execute(f'SELECT {",".join(self.columns)} FROM ec_data WHERE id >= {bottom_index} AND id <= {top_index} ORDER BY id;').fetchall()
             modis_result = conn.execute(f'SELECT row_id, data FROM modis_data WHERE row_id >= {bottom_index} AND row_id <= {top_index};').fetchall()
             phenocam_result = conn.execute(f'SELECT row_id, files FROM phenocam_data WHERE row_id >= {bottom_index} AND row_id <= {top_index};').fetchall()
-            
-        df = pd.DataFrame(data=ec_data, columns=self.columns)
-        assert len(df['site'].unique()) == 1, f'Pulled rows from multiple sites\nTop index: {top_index}, Bottom index: {bottom_index}'
-        site = df['site'].unique()[0]
+
+            df = pd.DataFrame(data=ec_data, columns=self.columns)
+            assert len(df['site'].unique()) == 1, f'Pulled rows from multiple sites\nTop index: {top_index}, Bottom index: {bottom_index}'
+            site = df['site'].unique()[0]
+            aux_result = conn.execute(f'SELECT lat, lon, elev, igbp FROM site_data WHERE site == "{site}";').fetchall()        
+        
         ec_timestamps = df['timestamp'].tolist()
         ts_map = {idx: timestamp for idx, timestamp in df[['id', 'timestamp']].values}
         ec_data = torch.tensor(df.drop(columns=['id', 'site', 'timestamp']).fillna(value=np.nan).astype(np.float32).values)
@@ -121,11 +124,11 @@ class CarbonSenseDataset(Dataset):
                 files = filetext.split(',')
                 phenocam_ir.extend([(ts_map[row], self._load_image(f)) for f in files if '_IR_' in f])
                 phenocam_rgb.extend([(ts_map[row], self._load_image(f)) for f in files if '_IR_' not in f])
-
-        return site, ec_cols, ec_timestamps, ec_data, tuple(modis_data), tuple(phenocam_ir), tuple(phenocam_rgb)
+        
+        return site, ec_cols, ec_timestamps, ec_data, tuple(modis_data), tuple(phenocam_ir), tuple(phenocam_rgb), aux_result[0]
     
     def collate_fn(self, batch):
-        sites, ec_cols, timestamps, ec_data, modis, phenocam_ir, phenocam_rgb = zip(*batch)
+        sites, ec_cols, timestamps, ec_data, modis, phenocam_ir, phenocam_rgb, aux_data = zip(*batch)
         columns = ec_cols[0] # only need to keep 1 copy of the columns
         ec_values = torch.stack(ec_data, dim=0)
-        return CarbonSenseBatch(sites, columns, timestamps, ec_values, modis, phenocam_ir, phenocam_rgb)
+        return CarbonSenseBatch(sites, columns, timestamps, ec_values, modis, phenocam_ir, phenocam_rgb, aux_data)

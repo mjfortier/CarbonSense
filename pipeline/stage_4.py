@@ -10,6 +10,7 @@ from typing import Dict, Tuple, Union
 from dataclasses import dataclass
 from multiprocessing import Pool
 from tqdm import tqdm
+import json
 from PIL import Image
 
 EC_PREDICTORS = ('DOY', 'TOD', 'TA', 'P', 'RH', 'VPD', 'PA', 'CO2', 'SW_IN', 'SW_IN_POT', 'SW_OUT', 'LW_IN', 'LW_OUT',
@@ -121,6 +122,7 @@ def _create_carbonsense_tables(conn: sqlite3.Connection, config: CarbonSenseStag
     columns =  config.predictors + config.targets
     column_spec = ',\n        '.join([f'{c} REAL' for c in columns])
     create_tables_statement = f"""
+    DROP TABLE IF EXISTS site_data;
     DROP TABLE IF EXISTS phenocam_data;
     DROP TABLE IF EXISTS modis_data;
     DROP TABLE IF EXISTS ec_data;
@@ -148,6 +150,15 @@ def _create_carbonsense_tables(conn: sqlite3.Connection, config: CarbonSenseStag
         FOREIGN KEY(row_id) REFERENCES ec_data(id)
     );
     CREATE INDEX idx_phenocam_row_id ON phenocam_data(row_id);
+
+    CREATE TABLE site_data (
+        site TEXT PRIMARY KEY,
+        lat REAL,
+        lon REAL,
+        elev REAL,
+        igbp TEXT
+    );
+    CREATE INDEX idx_site_data_site ON site_data(site);
     """
     conn.executescript(create_tables_statement)
 
@@ -243,6 +254,18 @@ def process_data_sql(
                 df_phenocam.to_sql('phenocam_data', conn, if_exists='append', index=False)
                 del phenocam_file, phenocam_dict, phenocam_data, df_phenocam
             del df, df_processed, timestamp_row_pairs, timestamp_map
+
+            meta_file = processed_data_path / site / 'meta.json'
+            with open(meta_file, 'r') as f:
+                meta = json.load(f)
+                site_row = {
+                    'site': meta['SITE_ID'],
+                    'lat': meta['LOCATION_LAT'],
+                    'lon': meta['LOCATION_LON'],
+                    'elev': meta['LOCATION_ELEV'],
+                    'igbp': meta['IGBP']
+                }
+            conn.execute('INSERT INTO site_data VALUES (:site, :lat, :lon, :elev, :igbp)', site_row)
         return
 
 
@@ -272,7 +295,7 @@ def run_stage_4(
     output_path = data_path / output_name
     
     os.makedirs(output_path, exist_ok=True)
-    resize_phenocam(data_path, output_path, config, num_workers)
+    #resize_phenocam(data_path, output_path, config, num_workers)
     process_data_sql(data_path, output_path, config)
 
     return

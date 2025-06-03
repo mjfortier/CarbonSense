@@ -25,13 +25,18 @@ WATER_DICT = {
     5: 1, # deep inland water
     6: 1, # moderate or continental ocean
     7: 1, # deep ocean
-    255: 0 # fill value, treat as land for simplicity
 }
 
 def _clean_a2_data(arr):
     # Snow: 0 = no snow, 1 = snow, 255 = fill
-    snow_arr = np.where((arr[0] == 255), -1, arr[0]).astype(np.float32)
-    water_arr = np.vectorize(WATER_DICT.get)(arr[2]).astype(np.float32)
+    snow_arr = arr[0].astype(np.float32)
+    snow_arr = np.where((snow_arr > 1), -1, snow_arr)
+    snow_arr = np.nan_to_num(snow_arr, nan=-1.0)
+
+    water_arr = arr[2]
+    water_arr = np.where((water_arr > 7), 0, water_arr)
+    water_arr = np.vectorize(WATER_DICT.get)(water_arr).astype(np.float32)
+    water_arr = np.nan_to_num(water_arr, nan=0.0)
     return np.stack((snow_arr, water_arr), axis=0)[:,1:9,1:9]
 
 
