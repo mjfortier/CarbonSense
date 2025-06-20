@@ -24,7 +24,7 @@ DEFAULT_NORM = {
     'DOY': {'cyclic': True, 'norm_max': 366.0, 'norm_min': 0.0},
     'TOD': {'cyclic': True, 'norm_max': 24.0, 'norm_min': 0.0},
     'TA': {'cyclic': False, 'norm_max': 80.0, 'norm_min': -80.0},
-    'P': {'cyclic': False, 'norm_max': 50.0, 'norm_min': 0.0},
+    'P': {'cyclic': False, 'norm_max': 100.0, 'norm_min': 0.0},
     'RH': {'cyclic': False, 'norm_max': 100.0, 'norm_min': 0.0},
     'VPD': {'cyclic': False, 'norm_max': 110.0, 'norm_min': 0.0},
     'PA': {'cyclic': False, 'norm_max': 110.0, 'norm_min': 0.0},
@@ -84,6 +84,7 @@ class CarbonSenseStage4Config:
     predictors_max_qc: int = 2
     normalize_predictors: bool = True
     normalize_targets: bool = False
+    aggregation: str = "half hourly" # "half hourly", "hourly", "daily", "monthly"
     normalization_config: Dict = field(default_factory = lambda: (DEFAULT_NORM))
     phenocam_size: int = 256
 
@@ -163,6 +164,17 @@ def _create_carbonsense_tables(conn: sqlite3.Connection, config: CarbonSenseStag
     conn.executescript(create_tables_statement)
 
 
+def _aggregate_df(df: pd.DataFrame, step: int):
+    time_cols = ['timestamp', 'DOY', 'TOD']
+    other_cols = [c for c in df.columns if c not in time_cols]
+    grouping_key = np.arange(len(df)) // step
+    df_agg_time = df[time_cols].iloc[::step].reset_index(drop=True)
+    df_agg_other = df[other_cols].groupby(grouping_key).mean().reset_index(drop=True)
+    df_agg_other['P'] = df_agg_other['P'] * step
+    return pd.concat([df_agg_time, df_agg_other], axis=1)
+
+
+
 def _process_dataframe(df_raw: pd.DataFrame, config: CarbonSenseStage4Config):
     df = df_raw.copy()
     for pred in config.predictors:
@@ -174,6 +186,16 @@ def _process_dataframe(df_raw: pd.DataFrame, config: CarbonSenseStage4Config):
 
     # Filter variables (and get rid of QC columns)
     df = df[['timestamp'] + list(config.predictors) + list(config.targets)]
+
+    # Aggregate - avoid match / case for Python compatibility's sake
+    if config.aggregation == "half hourly":
+        pass
+    elif config.aggregation == "hourly":
+        df = _aggregate_df(df, 2)
+    elif config.aggregation == "daily":
+        df = _aggregate_df(df, 48)
+    else:
+        raise NotImplementedError(config.aggregation)
 
     # Min-max normalization
     if config.normalize_predictors:
